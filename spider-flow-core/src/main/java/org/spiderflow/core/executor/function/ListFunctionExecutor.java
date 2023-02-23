@@ -2,6 +2,7 @@ package org.spiderflow.core.executor.function;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.spiderflow.annotation.Comment;
@@ -10,14 +11,14 @@ import org.spiderflow.executor.FunctionExecutor;
 import org.springframework.stereotype.Component;
 
 /**
- * List 工具类 防止NPE 添加了类似python的split()方法 
+ * List 工具类 防止NPE 添加了类似python的split()方法
  * @author Administrator
  *
  */
 @Component
 @Comment("list常用方法")
 public class ListFunctionExecutor implements FunctionExecutor{
-	
+
 	@Override
 	public String getFunctionPrefix() {
 		return "list";
@@ -28,9 +29,9 @@ public class ListFunctionExecutor implements FunctionExecutor{
 	public static int length(List<?> list){
 		return list != null ? list.size() : 0;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param list 原List
 	 * @param len 按多长进行分割
 	 * @return List<List<?>> 分割后的数组
@@ -50,7 +51,7 @@ public class ListFunctionExecutor implements FunctionExecutor{
 		}
 		return result;
 	}
-	
+
 	@Comment("截取List")
 	@Example("${list.sublist(listVar,fromIndex,toIndex)}")
 	public static List<?> sublist(List<?> list,int fromIndex,int toIndex){
@@ -71,5 +72,37 @@ public class ListFunctionExecutor implements FunctionExecutor{
 		}
 		return result;
 	}
-		
+
+	@Comment("提取List中Map的values")
+	@Example("@{list.extractFromMap(listVar,targetKey)}")
+	public static List<String> extractFromMap(List<Map<String,Object>> list, String targetKey){
+		if (list == null || list.isEmpty()) {
+			return null;
+		}
+		final ArrayList<String> strings = new ArrayList<>(list.size());
+		for (Map<String, Object> stringObjectMap : list) {
+			strings.add((String) stringObjectMap.get(targetKey));
+		}
+		return strings;
+	}
+
+	@Comment("用List中的element生成SQL UPDATE语句")
+	@Example("@{list.generateUpdateSql(listVar)}")
+	public static String generateUpdateSql(List<String> list, String status){
+		if (list == null || list.isEmpty()) {
+			return null;
+		}
+		final StringBuilder builder = new StringBuilder();
+		builder.append("UPDATE Information SET `status`=");
+		builder.append(status);
+		builder.append("WHERE `Id` IN (");
+		for (String s : list) {
+			builder.append(s);
+			builder.append(",");
+		}
+		builder.deleteCharAt(builder.length()-1);// 删掉最后一个逗号
+		builder.append(")");
+		return builder.toString();
+	}
+
 }
