@@ -94,10 +94,14 @@ public class ListFunctionExecutor implements FunctionExecutor{
 		}
 		final StringBuilder builder = new StringBuilder();
 		builder.append("UPDATE Information SET `status`=");
+		builder.append("'");
 		builder.append(status);
+		builder.append("'");
 		builder.append("WHERE `Id` IN (");
 		for (String s : list) {
+			builder.append("'");
 			builder.append(s);
+			builder.append("'");
 			builder.append(",");
 		}
 		builder.deleteCharAt(builder.length()-1);// 删掉最后一个逗号
